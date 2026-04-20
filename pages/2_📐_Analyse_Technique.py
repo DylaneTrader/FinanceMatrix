@@ -1,5 +1,5 @@
 """
-Page Analyse Technique — Indicateurs complets avec signaux
+Page Analyse Technique — Indicateurs complets avec signaux et paramètres configurables
 """
 
 import streamlit as st
@@ -14,10 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data_handler import (
     SECTOR_TICKERS,
     fetch_data,
-    calculate_indicators,
     get_ticker_info,
     get_fundamentals,
     format_fundamental_value,
+    _parabolic_sar,
 )
 
 st.set_page_config(page_title="Analyse Technique - FinanceMatrix", page_icon="📐", layout="wide")
@@ -51,13 +51,64 @@ selected_period = st.sidebar.selectbox(
     format_func=lambda x: PERIOD_OPTIONS[x], index=4,
 )
 
+# ═══ Paramètres des indicateurs (sidebar) ═══
+st.sidebar.markdown("---")
+st.sidebar.markdown("### ⚙️ Paramètres indicateurs")
 
+with st.sidebar.expander("📊 RSI", expanded=False):
+    p_rsi = st.number_input("Période RSI", 2, 50, 14, key="p_rsi")
+    p_rsi_ob = st.number_input("Seuil suracheté", 50, 100, 70, key="p_rsi_ob")
+    p_rsi_os = st.number_input("Seuil survendu", 0, 50, 30, key="p_rsi_os")
+    p_stochrsi_period = st.number_input("Stoch RSI période", 2, 50, 14, key="p_stochrsi_p")
+    p_stochrsi_k = st.number_input("Stoch RSI %K lissage", 1, 20, 3, key="p_stochrsi_k")
+    p_stochrsi_d = st.number_input("Stoch RSI %D lissage", 1, 20, 3, key="p_stochrsi_d")
+
+with st.sidebar.expander("📉 MACD", expanded=False):
+    p_macd_fast = st.number_input("EMA rapide", 2, 50, 12, key="p_macd_fast")
+    p_macd_slow = st.number_input("EMA lente", 10, 100, 26, key="p_macd_slow")
+    p_macd_signal = st.number_input("Signal", 2, 50, 9, key="p_macd_signal")
+
+with st.sidebar.expander("🔄 Stochastic", expanded=False):
+    p_stoch_k = st.number_input("Période %K", 2, 50, 14, key="p_stoch_k")
+    p_stoch_d = st.number_input("Lissage %D", 1, 20, 3, key="p_stoch_d")
+    p_stoch_ob = st.number_input("Seuil suracheté", 50, 100, 80, key="p_stoch_ob")
+    p_stoch_os = st.number_input("Seuil survendu", 0, 50, 20, key="p_stoch_os")
+    p_williams = st.number_input("Williams %R période", 2, 50, 14, key="p_williams")
+
+with st.sidebar.expander("📏 ADX / Aroon", expanded=False):
+    p_adx = st.number_input("Période ADX", 2, 50, 14, key="p_adx")
+    p_adx_threshold = st.number_input("Seuil tendance", 10, 50, 25, key="p_adx_th")
+    p_aroon = st.number_input("Période Aroon", 5, 100, 25, key="p_aroon")
+
+with st.sidebar.expander("☁️ Ichimoku", expanded=False):
+    p_ichi_tenkan = st.number_input("Tenkan-sen", 2, 50, 9, key="p_ichi_t")
+    p_ichi_kijun = st.number_input("Kijun-sen", 5, 100, 26, key="p_ichi_k")
+    p_ichi_spanb = st.number_input("Senkou Span B", 10, 200, 52, key="p_ichi_sb")
+    p_ichi_disp = st.number_input("Décalage", 5, 100, 26, key="p_ichi_d")
+
+with st.sidebar.expander("📦 Volume", expanded=False):
+    p_cmf = st.number_input("CMF période", 5, 50, 20, key="p_cmf")
+    p_mfi = st.number_input("MFI période", 2, 50, 14, key="p_mfi")
+    p_force_ema = st.number_input("Force Index EMA", 2, 50, 13, key="p_force")
+
+with st.sidebar.expander("📐 Canaux", expanded=False):
+    p_kelt_ema = st.number_input("Keltner EMA", 5, 100, 20, key="p_kelt_ema")
+    p_kelt_mult = st.number_input("Keltner multiplicateur ATR", 0.5, 5.0, 2.0, step=0.5, key="p_kelt_m")
+    p_donch = st.number_input("Donchian période", 5, 100, 20, key="p_donch")
+
+with st.sidebar.expander("🧮 Autres", expanded=False):
+    p_cci = st.number_input("CCI période", 5, 50, 20, key="p_cci")
+    p_roc = st.number_input("ROC période", 1, 50, 12, key="p_roc")
+    p_trix = st.number_input("TRIX EMA", 5, 50, 15, key="p_trix")
+    p_dpo = st.number_input("DPO période", 5, 50, 20, key="p_dpo")
+    p_ulcer = st.number_input("Ulcer Index période", 5, 50, 14, key="p_ulcer")
+    p_atr = st.number_input("ATR période", 2, 50, 14, key="p_atr")
+
+
+# ═══ Fetch data ═══
 @st.cache_data(ttl=300, show_spinner="Chargement des données…")
 def _fetch(ticker, period):
-    df = fetch_data(ticker, period=period)
-    if df is not None:
-        df = calculate_indicators(df)
-    return df
+    return fetch_data(ticker, period=period)
 
 
 @st.cache_data(ttl=600)
@@ -70,11 +121,158 @@ def _funds(ticker):
     return get_fundamentals(ticker)
 
 
-df = _fetch(selected_ticker, selected_period)
-if df is None or df.empty:
+raw_df = _fetch(selected_ticker, selected_period)
+if raw_df is None or raw_df.empty:
     st.error(f"Aucune donnée pour {selected_ticker}. Essayez un autre ticker.")
     st.stop()
 
+df = raw_df.copy()
+close = df["Close"]
+high = df["High"]
+low = df["Low"]
+volume = df.get("Volume", pd.Series(0, index=df.index))
+tp = (high + low + close) / 3
+
+# ═══ Calcul dynamique de TOUS les indicateurs avec paramètres utilisateur ═══
+
+# ATR
+high_low = high - low
+high_close = (high - close.shift()).abs()
+low_close = (low - close.shift()).abs()
+tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+df["TR"] = tr
+df["ATR"] = tr.rolling(p_atr).mean()
+
+# RSI
+delta = close.diff()
+gain = delta.where(delta > 0, 0).rolling(p_rsi).mean()
+loss = (-delta.where(delta < 0, 0)).rolling(p_rsi).mean()
+rs = gain / loss.replace(0, 1e-9)
+df["RSI"] = 100 - (100 / (1 + rs))
+
+# Stochastic RSI
+rsi_s = df["RSI"]
+rsi_min = rsi_s.rolling(p_stochrsi_period).min()
+rsi_max = rsi_s.rolling(p_stochrsi_period).max()
+stoch_rsi = (rsi_s - rsi_min) / (rsi_max - rsi_min).replace(0, 1e-9)
+df["StochRSI_K"] = stoch_rsi.rolling(p_stochrsi_k).mean() * 100
+df["StochRSI_D"] = df["StochRSI_K"].rolling(p_stochrsi_d).mean()
+
+# MACD
+ema_fast = close.ewm(span=p_macd_fast, adjust=False).mean()
+ema_slow = close.ewm(span=p_macd_slow, adjust=False).mean()
+df["MACD"] = ema_fast - ema_slow
+df["MACD_Signal"] = df["MACD"].ewm(span=p_macd_signal, adjust=False).mean()
+df["MACD_Hist"] = df["MACD"] - df["MACD_Signal"]
+
+# ADX
+plus_dm = high.diff()
+minus_dm = -low.diff()
+plus_dm = plus_dm.where((plus_dm > minus_dm) & (plus_dm > 0), 0)
+minus_dm = minus_dm.where((minus_dm > plus_dm) & (minus_dm > 0), 0)
+atr_adx = df["ATR"].replace(0, 1e-9)
+plus_di = 100 * plus_dm.rolling(p_adx).mean() / atr_adx
+minus_di = 100 * minus_dm.rolling(p_adx).mean() / atr_adx
+df["Plus_DI"] = plus_di
+df["Minus_DI"] = minus_di
+dx = (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, 1e-9) * 100
+df["ADX"] = dx.rolling(p_adx).mean()
+
+# CCI
+sma_tp = tp.rolling(p_cci).mean()
+mad = tp.rolling(p_cci).apply(lambda x: np.abs(x - x.mean()).mean(), raw=True)
+df["CCI"] = (tp - sma_tp) / (0.015 * mad.replace(0, 1e-9))
+
+# Stochastic
+h_stoch = high.rolling(p_stoch_k).max()
+l_stoch = low.rolling(p_stoch_k).min()
+df["Stoch_K"] = 100 * (close - l_stoch) / (h_stoch - l_stoch).replace(0, 1e-9)
+df["Stoch_D"] = df["Stoch_K"].rolling(p_stoch_d).mean()
+
+# Williams %R
+h_wr = high.rolling(p_williams).max()
+l_wr = low.rolling(p_williams).min()
+df["Williams_R"] = -100 * (h_wr - close) / (h_wr - l_wr).replace(0, 1e-9)
+
+# OBV
+obv_sign = close.diff().apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
+df["OBV"] = (obv_sign * volume).cumsum()
+
+# VWAP
+cum_vol = volume.cumsum()
+cum_tp_vol = (tp * volume).cumsum()
+df["VWAP"] = cum_tp_vol / cum_vol.replace(0, 1e-9)
+
+# Ichimoku
+h_t = high.rolling(p_ichi_tenkan).max()
+l_t = low.rolling(p_ichi_tenkan).min()
+df["Ichimoku_Tenkan"] = (h_t + l_t) / 2
+h_k = high.rolling(p_ichi_kijun).max()
+l_k = low.rolling(p_ichi_kijun).min()
+df["Ichimoku_Kijun"] = (h_k + l_k) / 2
+df["Ichimoku_SpanA"] = ((df["Ichimoku_Tenkan"] + df["Ichimoku_Kijun"]) / 2).shift(p_ichi_disp)
+h_sb = high.rolling(p_ichi_spanb).max()
+l_sb = low.rolling(p_ichi_spanb).min()
+df["Ichimoku_SpanB"] = ((h_sb + l_sb) / 2).shift(p_ichi_disp)
+df["Ichimoku_Chikou"] = close.shift(-p_ichi_disp)
+
+# Parabolic SAR
+df["PSAR"] = _parabolic_sar(high, low, close)
+
+# CMF
+mfv = ((close - low) - (high - close)) / (high - low).replace(0, 1e-9) * volume
+df["CMF"] = mfv.rolling(p_cmf).sum() / volume.rolling(p_cmf).sum().replace(0, 1e-9)
+
+# MFI
+raw_mf = tp * volume
+pos_mf = raw_mf.where(tp > tp.shift(), 0).rolling(p_mfi).sum()
+neg_mf = raw_mf.where(tp < tp.shift(), 0).rolling(p_mfi).sum()
+mf_ratio = pos_mf / neg_mf.replace(0, 1e-9)
+df["MFI"] = 100 - (100 / (1 + mf_ratio))
+
+# ROC
+df["ROC"] = (close / close.shift(p_roc) - 1) * 100
+
+# TRIX
+ema1_t = close.ewm(span=p_trix, adjust=False).mean()
+ema2_t = ema1_t.ewm(span=p_trix, adjust=False).mean()
+ema3_t = ema2_t.ewm(span=p_trix, adjust=False).mean()
+df["TRIX"] = ema3_t.pct_change() * 100
+
+# DPO
+df["DPO"] = close.shift(p_dpo // 2 + 1) - close.rolling(p_dpo).mean()
+
+# Keltner
+ema_kc = close.ewm(span=p_kelt_ema, adjust=False).mean()
+df["Keltner_Upper"] = ema_kc + p_kelt_mult * df["ATR"]
+df["Keltner_Mid"] = ema_kc
+df["Keltner_Lower"] = ema_kc - p_kelt_mult * df["ATR"]
+
+# Donchian
+df["Donchian_Upper"] = high.rolling(p_donch).max()
+df["Donchian_Lower"] = low.rolling(p_donch).min()
+df["Donchian_Mid"] = (df["Donchian_Upper"] + df["Donchian_Lower"]) / 2
+
+# Ulcer Index
+rolling_max_u = close.rolling(p_ulcer).max()
+pct_dd = (close - rolling_max_u) / rolling_max_u * 100
+df["Ulcer_Index"] = (pct_dd.pow(2).rolling(p_ulcer).mean()).pow(0.5)
+
+# Force Index
+df["Force_Index"] = close.diff() * volume
+df["Force_Index_13"] = df["Force_Index"].ewm(span=p_force_ema, adjust=False).mean()
+
+# Aroon
+df["Aroon_Up"] = high.rolling(p_aroon + 1).apply(
+    lambda x: x.argmax() / p_aroon * 100, raw=True)
+df["Aroon_Down"] = low.rolling(p_aroon + 1).apply(
+    lambda x: x.argmin() / p_aroon * 100, raw=True)
+df["Aroon_Osc"] = df["Aroon_Up"] - df["Aroon_Down"]
+
+# Return
+df["Return"] = close.pct_change()
+
+# ═══ Info ticker ═══
 info = _info(selected_ticker)
 st.markdown(f"**{info.get('longName') or info.get('shortName') or selected_ticker}** — "
             f"{info.get('sector', '')} · {info.get('industry', '')}")
@@ -84,7 +282,6 @@ st.markdown("---")
 
 # ═══════════════ HELPERS ═══════════════
 def _safe(col, idx=-1):
-    """Get last (or idx) value of a column safely."""
     if col not in df.columns:
         return np.nan
     s = df[col].dropna()
@@ -118,21 +315,19 @@ def _chart_layout(fig, h=550):
 rsi_val = _safe("RSI")
 macd_val = _safe("MACD")
 macd_sig = _safe("MACD_Signal")
-sma20_v = _safe("SMA_20")
-sma50_v = _safe("SMA_50")
 adx_val = _safe("ADX")
 cci_val = _safe("CCI")
 close_last = float(df["Close"].iloc[-1])
 
 # RSI card
 if np.isnan(rsi_val):
-    rsi_card = _signal_card("RSI (14)", "—", "Indisponible", C_MUTED)
-elif rsi_val > 70:
-    rsi_card = _signal_card("RSI (14)", f"{rsi_val:.1f}", "🔴 Suracheté", C_RED)
-elif rsi_val < 30:
-    rsi_card = _signal_card("RSI (14)", f"{rsi_val:.1f}", "🟢 Survendu", C_GREEN)
+    rsi_card = _signal_card(f"RSI ({p_rsi})", "—", "Indisponible", C_MUTED)
+elif rsi_val > p_rsi_ob:
+    rsi_card = _signal_card(f"RSI ({p_rsi})", f"{rsi_val:.1f}", "🔴 Suracheté", C_RED)
+elif rsi_val < p_rsi_os:
+    rsi_card = _signal_card(f"RSI ({p_rsi})", f"{rsi_val:.1f}", "🟢 Survendu", C_GREEN)
 else:
-    rsi_card = _signal_card("RSI (14)", f"{rsi_val:.1f}", "⚪ Neutre", C_MUTED)
+    rsi_card = _signal_card(f"RSI ({p_rsi})", f"{rsi_val:.1f}", "⚪ Neutre", C_MUTED)
 
 # MACD card
 macd_prev = _safe("MACD", -2)
@@ -151,16 +346,18 @@ else:
 
 # ADX card
 if not np.isnan(adx_val):
-    if adx_val > 25:
-        adx_card = _signal_card("ADX", f"{adx_val:.1f}", "🟢 Tendance forte", C_GREEN)
+    if adx_val > p_adx_threshold:
+        adx_card = _signal_card(f"ADX ({p_adx})", f"{adx_val:.1f}", "🟢 Tendance forte", C_GREEN)
     else:
-        adx_card = _signal_card("ADX", f"{adx_val:.1f}", "⚪ Pas de tendance", C_MUTED)
+        adx_card = _signal_card(f"ADX ({p_adx})", f"{adx_val:.1f}", "⚪ Pas de tendance", C_MUTED)
 else:
     adx_card = _signal_card("ADX", "—", "Indisponible", C_MUTED)
 
 # Prix vs SMA 50
-if not np.isnan(sma50_v):
-    px_diff = (close_last / sma50_v - 1) * 100
+sma50_v = df["Close"].rolling(50).mean().dropna()
+if not sma50_v.empty:
+    sma50_last = float(sma50_v.iloc[-1])
+    px_diff = (close_last / sma50_last - 1) * 100
     if px_diff > 0:
         px_card = _signal_card("Prix vs SMA 50", f"{px_diff:+.1f}%", "🟢 Au-dessus", C_GREEN)
     else:
@@ -171,20 +368,20 @@ else:
 # CCI card
 if not np.isnan(cci_val):
     if cci_val > 100:
-        cci_card = _signal_card("CCI (20)", f"{cci_val:.0f}", "🔴 Suracheté", C_RED)
+        cci_card = _signal_card(f"CCI ({p_cci})", f"{cci_val:.0f}", "🔴 Suracheté", C_RED)
     elif cci_val < -100:
-        cci_card = _signal_card("CCI (20)", f"{cci_val:.0f}", "🟢 Survendu", C_GREEN)
+        cci_card = _signal_card(f"CCI ({p_cci})", f"{cci_val:.0f}", "🟢 Survendu", C_GREEN)
     else:
-        cci_card = _signal_card("CCI (20)", f"{cci_val:.0f}", "⚪ Neutre", C_MUTED)
+        cci_card = _signal_card(f"CCI ({p_cci})", f"{cci_val:.0f}", "⚪ Neutre", C_MUTED)
 else:
-    cci_card = _signal_card("CCI (20)", "—", "Indisponible", C_MUTED)
+    cci_card = _signal_card("CCI", "—", "Indisponible", C_MUTED)
 
 # Stochastic card
 stoch_k = _safe("Stoch_K")
 if not np.isnan(stoch_k):
-    if stoch_k > 80:
+    if stoch_k > p_stoch_ob:
         stoch_card = _signal_card("Stochastic %K", f"{stoch_k:.1f}", "🔴 Suracheté", C_RED)
-    elif stoch_k < 20:
+    elif stoch_k < p_stoch_os:
         stoch_card = _signal_card("Stochastic %K", f"{stoch_k:.1f}", "🟢 Survendu", C_GREEN)
     else:
         stoch_card = _signal_card("Stochastic %K", f"{stoch_k:.1f}", "⚪ Neutre", C_MUTED)
@@ -219,18 +416,20 @@ st.markdown("")
 
 # ──────────────── RSI ────────────────
 with tab_rsi:
-    st.subheader("RSI — Relative Strength Index")
+    st.subheader(f"RSI — Relative Strength Index ({p_rsi})")
+    st.caption(f"Paramètres : période={p_rsi}, suracheté={p_rsi_ob}, survendu={p_rsi_os}")
+
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        row_heights=[0.6, 0.4], subplot_titles=("Prix", "RSI (14)"))
+                        row_heights=[0.6, 0.4], subplot_titles=("Prix", f"RSI ({p_rsi})"))
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_LINE, width=2)), row=1, col=1)
     if "RSI" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["RSI"], mode="lines", name="RSI",
                                  line=dict(color=C_PRIMARY, width=1.5)), row=2, col=1)
-    fig.add_hline(y=70, line_dash="dash", line_color=C_RED, row=2, col=1)
-    fig.add_hline(y=30, line_dash="dash", line_color=C_GREEN, row=2, col=1)
-    fig.add_hrect(y0=70, y1=100, fillcolor="rgba(239,68,68,0.08)", line_width=0, row=2, col=1)
-    fig.add_hrect(y0=0, y1=30, fillcolor="rgba(16,185,129,0.08)", line_width=0, row=2, col=1)
+    fig.add_hline(y=p_rsi_ob, line_dash="dash", line_color=C_RED, row=2, col=1)
+    fig.add_hline(y=p_rsi_os, line_dash="dash", line_color=C_GREEN, row=2, col=1)
+    fig.add_hrect(y0=p_rsi_ob, y1=100, fillcolor="rgba(239,68,68,0.08)", line_width=0, row=2, col=1)
+    fig.add_hrect(y0=0, y1=p_rsi_os, fillcolor="rgba(16,185,129,0.08)", line_width=0, row=2, col=1)
     fig.update_yaxes(range=[0, 100], row=2, col=1)
     _chart_layout(fig, 580)
     fig.update_layout(showlegend=False)
@@ -238,7 +437,7 @@ with tab_rsi:
 
     # Stochastic RSI subplot
     if "StochRSI_K" in df.columns:
-        st.markdown("##### Stochastic RSI")
+        st.markdown(f"##### Stochastic RSI (période={p_stochrsi_period}, K={p_stochrsi_k}, D={p_stochrsi_d})")
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(x=df.index, y=df["StochRSI_K"], mode="lines",
                                   name="Stoch RSI %K", line=dict(color=C_LINE, width=1.5)))
@@ -251,7 +450,8 @@ with tab_rsi:
         st.plotly_chart(fig2, use_container_width=True)
 
     if not np.isnan(rsi_val):
-        lbl = "🔴 Suracheté" if rsi_val > 70 else ("🟢 Survendu" if rsi_val < 30 else "⚪ Neutre")
+        lbl = ("🔴 Suracheté" if rsi_val > p_rsi_ob
+               else ("🟢 Survendu" if rsi_val < p_rsi_os else "⚪ Neutre"))
         st.info(f"**RSI actuel : {rsi_val:.2f}** — {lbl}")
 
 # ──────────────── Moyennes Mobiles ────────────────
@@ -281,11 +481,9 @@ with tab_ma:
                              line=dict(color=C_GREEN, width=1.5)))
     fig.add_trace(go.Scatter(x=df.index, y=ema_long, name=f"EMA {ema2}",
                              line=dict(color="#059669", width=1.5, dash="dash")))
-    # VWAP
     if "VWAP" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["VWAP"], name="VWAP",
                                  line=dict(color="#F59E0B", width=1.2, dash="dot")))
-    # Parabolic SAR
     if "PSAR" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["PSAR"], mode="markers", name="SAR",
                                  marker=dict(color="#8B5CF6", size=3)))
@@ -309,8 +507,11 @@ with tab_ma:
 # ──────────────── MACD ────────────────
 with tab_macd:
     st.subheader("MACD — Moving Average Convergence Divergence")
+    st.caption(f"Paramètres : rapide={p_macd_fast}, lente={p_macd_slow}, signal={p_macd_signal}")
+
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        row_heights=[0.6, 0.4], subplot_titles=("Prix", "MACD"))
+                        row_heights=[0.6, 0.4],
+                        subplot_titles=("Prix", f"MACD ({p_macd_fast},{p_macd_slow},{p_macd_signal})"))
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_LINE, width=2)), row=1, col=1)
     if "MACD" in df.columns:
@@ -391,13 +592,17 @@ with tab_bb:
         with bc2:
             st.metric("Bandwidth", f"{bandwidth.dropna().iloc[-1]:.1f}%")
         with bc3:
-            st.metric("ATR (14)", f"{_safe('ATR'):.2f}" if not np.isnan(_safe("ATR")) else "—")
+            atr_v = _safe("ATR")
+            st.metric(f"ATR ({p_atr})", f"{atr_v:.2f}" if not np.isnan(atr_v) else "—")
 
 # ──────────────── Stochastic ────────────────
 with tab_stoch:
     st.subheader("Oscillateur Stochastique")
+    st.caption(f"Paramètres : %K={p_stoch_k}, %D lissage={p_stoch_d}, suracheté={p_stoch_ob}, survendu={p_stoch_os}")
+
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        row_heights=[0.6, 0.4], subplot_titles=("Prix", "Stochastic (14,3)"))
+                        row_heights=[0.6, 0.4],
+                        subplot_titles=("Prix", f"Stochastic ({p_stoch_k},{p_stoch_d})"))
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_LINE, width=2)), row=1, col=1)
     if "Stoch_K" in df.columns:
@@ -406,16 +611,16 @@ with tab_stoch:
     if "Stoch_D" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["Stoch_D"], mode="lines", name="%D",
                                  line=dict(color=C_RED, width=1.2, dash="dash")), row=2, col=1)
-    fig.add_hline(y=80, line_dash="dash", line_color=C_RED, row=2, col=1)
-    fig.add_hline(y=20, line_dash="dash", line_color=C_GREEN, row=2, col=1)
-    fig.add_hrect(y0=80, y1=100, fillcolor="rgba(239,68,68,0.08)", line_width=0, row=2, col=1)
-    fig.add_hrect(y0=0, y1=20, fillcolor="rgba(16,185,129,0.08)", line_width=0, row=2, col=1)
+    fig.add_hline(y=p_stoch_ob, line_dash="dash", line_color=C_RED, row=2, col=1)
+    fig.add_hline(y=p_stoch_os, line_dash="dash", line_color=C_GREEN, row=2, col=1)
+    fig.add_hrect(y0=p_stoch_ob, y1=100, fillcolor="rgba(239,68,68,0.08)", line_width=0, row=2, col=1)
+    fig.add_hrect(y0=0, y1=p_stoch_os, fillcolor="rgba(16,185,129,0.08)", line_width=0, row=2, col=1)
     fig.update_yaxes(range=[0, 100], row=2, col=1)
     _chart_layout(fig, 550)
     st.plotly_chart(fig, use_container_width=True)
 
     # Williams %R
-    st.markdown("##### Williams %R")
+    st.markdown(f"##### Williams %R (période={p_williams})")
     if "Williams_R" in df.columns:
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(x=df.index, y=df["Williams_R"], mode="lines",
@@ -433,8 +638,11 @@ with tab_stoch:
 # ──────────────── ADX ────────────────
 with tab_adx:
     st.subheader("ADX — Average Directional Index")
+    st.caption(f"Paramètres : période={p_adx}, seuil tendance={p_adx_threshold}")
+
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                        row_heights=[0.55, 0.45], subplot_titles=("Prix", "ADX / +DI / -DI"))
+                        row_heights=[0.55, 0.45],
+                        subplot_titles=("Prix", f"ADX / +DI / -DI ({p_adx})"))
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_LINE, width=2)), row=1, col=1)
     if "ADX" in df.columns:
@@ -446,23 +654,24 @@ with tab_adx:
     if "Minus_DI" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["Minus_DI"], mode="lines", name="-DI",
                                  line=dict(color=C_RED, width=1.2)), row=2, col=1)
-    fig.add_hline(y=25, line_dash="dash", line_color=C_MUTED, opacity=0.5, row=2, col=1)
+    fig.add_hline(y=p_adx_threshold, line_dash="dash", line_color=C_MUTED, opacity=0.5, row=2, col=1)
     _chart_layout(fig, 580)
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown(
-        "<div style='background:white;padding:14px;border-radius:10px;border-left:4px solid #0C64CF;'>"
-        "<strong>Interprétation ADX :</strong><br>"
-        "• <b>ADX &gt; 25</b> : tendance forte<br>"
-        "• <b>ADX &lt; 20</b> : marché sans tendance (range)<br>"
-        "• <b>+DI &gt; -DI</b> : tendance haussière · <b>-DI &gt; +DI</b> : tendance baissière"
-        "</div>", unsafe_allow_html=True)
+        f"<div style='background:white;padding:14px;border-radius:10px;border-left:4px solid #0C64CF;'>"
+        f"<strong>Interprétation ADX :</strong><br>"
+        f"• <b>ADX &gt; {p_adx_threshold}</b> : tendance forte<br>"
+        f"• <b>ADX &lt; {p_adx_threshold}</b> : marché sans tendance (range)<br>"
+        f"• <b>+DI &gt; -DI</b> : tendance haussière · <b>-DI &gt; +DI</b> : tendance baissière"
+        f"</div>", unsafe_allow_html=True)
 
     # Aroon
-    st.markdown("##### Aroon Oscillator")
+    st.markdown(f"##### Aroon Oscillator (période={p_aroon})")
     if "Aroon_Up" in df.columns:
         fig2 = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08,
-                             row_heights=[0.5, 0.5], subplot_titles=("Aroon Up / Down", "Aroon Oscillator"))
+                             row_heights=[0.5, 0.5],
+                             subplot_titles=("Aroon Up / Down", "Aroon Oscillator"))
         fig2.add_trace(go.Scatter(x=df.index, y=df["Aroon_Up"], mode="lines", name="Aroon Up",
                                   line=dict(color=C_GREEN, width=1.5)), row=1, col=1)
         fig2.add_trace(go.Scatter(x=df.index, y=df["Aroon_Down"], mode="lines", name="Aroon Down",
@@ -476,19 +685,25 @@ with tab_adx:
 # ──────────────── Ichimoku ────────────────
 with tab_ichimoku:
     st.subheader("Ichimoku Cloud")
+    st.caption(f"Paramètres : Tenkan={p_ichi_tenkan}, Kijun={p_ichi_kijun}, "
+               f"Span B={p_ichi_spanb}, décalage={p_ichi_disp}")
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_PRIMARY, width=2)))
     if "Ichimoku_Tenkan" in df.columns:
-        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_Tenkan"], name="Tenkan-sen (9)",
+        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_Tenkan"],
+                                 name=f"Tenkan-sen ({p_ichi_tenkan})",
                                  line=dict(color="#3B82F6", width=1.2)))
-        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_Kijun"], name="Kijun-sen (26)",
+        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_Kijun"],
+                                 name=f"Kijun-sen ({p_ichi_kijun})",
                                  line=dict(color=C_RED, width=1.2)))
     if "Ichimoku_SpanA" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_SpanA"], name="Senkou Span A",
                                  line=dict(color=C_GREEN, width=0.8)))
     if "Ichimoku_SpanB" in df.columns:
-        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_SpanB"], name="Senkou Span B",
+        fig.add_trace(go.Scatter(x=df.index, y=df["Ichimoku_SpanB"],
+                                 name=f"Senkou Span B ({p_ichi_spanb})",
                                  line=dict(color=C_RED, width=0.8),
                                  fill="tonexty", fillcolor="rgba(16,185,129,0.08)"))
     if "Ichimoku_Chikou" in df.columns:
@@ -509,11 +724,12 @@ with tab_ichimoku:
 # ──────────────── Volume ────────────────
 with tab_vol:
     st.subheader("Indicateurs de Volume")
+    st.caption(f"Paramètres : CMF={p_cmf}, MFI={p_mfi}, Force Index EMA={p_force_ema}")
 
-    # OBV
     fig = make_subplots(rows=3, cols=1, shared_xaxes=True, vertical_spacing=0.06,
                         row_heights=[0.4, 0.3, 0.3],
-                        subplot_titles=("Prix + Volume", "OBV (On-Balance Volume)", "CMF / MFI"))
+                        subplot_titles=("Prix + Volume", "OBV (On-Balance Volume)",
+                                        f"CMF ({p_cmf})"))
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_LINE, width=2)), row=1, col=1)
     if "Volume" in df.columns:
@@ -534,7 +750,7 @@ with tab_vol:
 
     # MFI
     if "MFI" in df.columns:
-        st.markdown("##### MFI — Money Flow Index")
+        st.markdown(f"##### MFI — Money Flow Index ({p_mfi})")
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(x=df.index, y=df["MFI"], mode="lines", name="MFI",
                                   line=dict(color=C_PRIMARY, width=1.5)))
@@ -546,7 +762,7 @@ with tab_vol:
 
     # Force Index
     if "Force_Index_13" in df.columns:
-        st.markdown("##### Force Index (13)")
+        st.markdown(f"##### Force Index (EMA {p_force_ema})")
         fig3 = go.Figure()
         fi_colors = [C_GREEN if v >= 0 else C_RED for v in df["Force_Index_13"].fillna(0)]
         fig3.add_trace(go.Bar(x=df.index, y=df["Force_Index_13"], name="Force Index",
@@ -560,6 +776,11 @@ with tab_channels:
     st.subheader("Canaux de prix")
     channel_type = st.radio("Type de canal", ["Keltner", "Donchian"], horizontal=True, key="ch_type")
 
+    if channel_type == "Keltner":
+        st.caption(f"Paramètres : EMA={p_kelt_ema}, multiplicateur ATR={p_kelt_mult}")
+    else:
+        st.caption(f"Paramètres : période={p_donch}")
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df.index, y=df["Close"], mode="lines", name="Prix",
                              line=dict(color=C_PRIMARY, width=2)))
@@ -570,7 +791,7 @@ with tab_channels:
         fig.add_trace(go.Scatter(x=df.index, y=df["Keltner_Lower"], name="Keltner Bas",
                                  line=dict(color=C_GREEN, width=1, dash="dot"),
                                  fill="tonexty", fillcolor="rgba(12,100,207,0.06)"))
-        fig.add_trace(go.Scatter(x=df.index, y=df["Keltner_Mid"], name="EMA 20",
+        fig.add_trace(go.Scatter(x=df.index, y=df["Keltner_Mid"], name=f"EMA {p_kelt_ema}",
                                  line=dict(color=C_MUTED, width=1, dash="dash")))
     elif channel_type == "Donchian" and "Donchian_Upper" in df.columns:
         fig.add_trace(go.Scatter(x=df.index, y=df["Donchian_Upper"], name="Donchian Haut",
@@ -586,12 +807,13 @@ with tab_channels:
 # ──────────────── Autres ────────────────
 with tab_misc:
     st.subheader("Indicateurs supplémentaires")
+    st.caption(f"CCI={p_cci} · ROC={p_roc} · TRIX={p_trix} · DPO={p_dpo} · Ulcer={p_ulcer}")
 
     mc1, mc2 = st.columns(2)
 
     with mc1:
         # CCI
-        st.markdown("##### CCI — Commodity Channel Index")
+        st.markdown(f"##### CCI — Commodity Channel Index ({p_cci})")
         if "CCI" in df.columns:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df.index, y=df["CCI"], mode="lines", name="CCI",
@@ -603,7 +825,7 @@ with tab_misc:
             st.plotly_chart(fig, use_container_width=True)
 
         # ROC
-        st.markdown("##### ROC — Rate of Change")
+        st.markdown(f"##### ROC — Rate of Change ({p_roc})")
         if "ROC" in df.columns:
             fig = go.Figure()
             roc_colors = [C_GREEN if v >= 0 else C_RED for v in df["ROC"].fillna(0)]
@@ -615,7 +837,7 @@ with tab_misc:
 
     with mc2:
         # TRIX
-        st.markdown("##### TRIX")
+        st.markdown(f"##### TRIX (EMA {p_trix})")
         if "TRIX" in df.columns:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df.index, y=df["TRIX"], mode="lines", name="TRIX",
@@ -625,7 +847,7 @@ with tab_misc:
             st.plotly_chart(fig, use_container_width=True)
 
         # Ulcer Index
-        st.markdown("##### Ulcer Index")
+        st.markdown(f"##### Ulcer Index ({p_ulcer})")
         if "Ulcer_Index" in df.columns:
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df.index, y=df["Ulcer_Index"], mode="lines",
@@ -635,7 +857,7 @@ with tab_misc:
             st.plotly_chart(fig, use_container_width=True)
 
     # DPO
-    st.markdown("##### DPO — Detrended Price Oscillator")
+    st.markdown(f"##### DPO — Detrended Price Oscillator ({p_dpo})")
     if "DPO" in df.columns:
         fig = go.Figure()
         dpo_colors = [C_GREEN if v >= 0 else C_RED for v in df["DPO"].fillna(0)]
