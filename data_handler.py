@@ -397,24 +397,6 @@ def calculate_indicators(df):
     ema3 = ema2.ewm(span=15, adjust=False).mean()
     df["TRIX"] = ema3.pct_change() * 100
 
-    # 1. Essayer le JSON local
-    local = _load_local_info(ticker)
-    if local:
-        return {
-            "shortName": local.get("Nom_Court") or local.get("Nom"),
-            "longName": local.get("Nom"),
-            "symbol": local.get("ticker", ticker),
-            "sector": local.get("Secteur"),
-            "industry": local.get("Industrie"),
-            "country": local.get("Pays"),
-            "city": local.get("Ville"),
-            "website": local.get("Site_Web"),
-            "currency": local.get("Devise"),
-            "exchange": local.get("Bourse"),
-            "fullTimeEmployees": local.get("Employes"),
-            "longBusinessSummary": local.get("Description"),
-        }
-    # 2. Fallback yfinance
     # ── DPO (Detrended Price Oscillator) ──
     n_dpo = 20
     df["DPO"] = close.shift(n_dpo // 2 + 1) - close.rolling(n_dpo).mean()
