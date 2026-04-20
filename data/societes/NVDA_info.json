@@ -1,0 +1,17 @@
+{
+  "ticker": "NVDA",
+  "Nom": "NVIDIA Corporation",
+  "Nom_Court": "NVIDIA Corporation",
+  "Secteur": "Technology",
+  "Industrie": "Semiconductors",
+  "Pays": "United States",
+  "Site_Web": "https://www.nvidia.com",
+  "Devise": "USD",
+  "Bourse": "NMS",
+  "Capitalisation": 4821626126336,
+  "PER_Trailing": 40.485714,
+  "Rendement_Dividende": 0.02,
+  "Beta": 2.335,
+  "Recommandation": "strong_buy",
+  "Description": "NVIDIA Corporation operates as a data center scale AI infrastructure company. The company operates through two segments, Compute & Networking, and Graphics segments. The Compute & Networking segment provides data center accelerated computing and networking platforms and artificial intelligence solutions and software, and automotive platforms and autonomous and electric vehicle solutions, including software. The Graphics segment offers GeForce GPUs for gaming and PCs; Quadro/NVIDIA RTX GPUs for enterprise workstation graphics. The company's products are used in gaming, professional visualization, data center, and automotive markets. The company sells its products to original equipment manufacturers, original device manufacturers, system integrators and distributors, independent software vendors, cloud service providers, add-in board manufacturers, distributors, automotive manufacturers and tier-1 automotive suppliers, and other ecosystem participants worldwide. It has a collaboration with Tech Mahindra Limited to develop artificial intelligence powered telco network operations reasoning agent. The company has a strategic partnership with Lumentum Holdings Inc. to develop optics technologies for AI and data centers. It also has a strategic partnership with Nebius Group N.V. to develop and deploy hyperscale cloud for the artificial intelligence market. NVIDIA Corporation was incorporated in 1993 and is headquartered in Santa Clara, California."
+}

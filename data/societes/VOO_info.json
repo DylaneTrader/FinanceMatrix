@@ -1,0 +1,10 @@
+{
+  "ticker": "VOO",
+  "Nom": "Vanguard S&P 500 ETF",
+  "Nom_Court": "Vanguard S&P 500 ETF",
+  "Devise": "USD",
+  "Bourse": "PCX",
+  "PER_Trailing": 28.098372,
+  "Rendement_Dividende": 1.19,
+  "Description": "The fund employs an indexing investment approach designed to track the performance of the Standard & Poor's 500 Index, a widely recognized benchmark of U.S. stock market performance that is dominated by the stocks of large U.S. companies. The advisor attempts to replicate the target index by investing all, or substantially all, of its assets in the stocks that make up the index, holding each stock in approximately the same proportion as its weighting in the index. The fund is non-diversified."
+}

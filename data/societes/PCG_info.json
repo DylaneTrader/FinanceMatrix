@@ -1,0 +1,17 @@
+{
+  "ticker": "PCG",
+  "Nom": "PG&E Corporation",
+  "Nom_Court": "Pacific Gas & Electric Co.",
+  "Secteur": "Utilities",
+  "Industrie": "Utilities - Regulated Electric",
+  "Pays": "United States",
+  "Site_Web": "https://www.pgecorp.com",
+  "Devise": "USD",
+  "Bourse": "NYQ",
+  "Capitalisation": 38549864448,
+  "PER_Trailing": 14.834745,
+  "Rendement_Dividende": 1.16,
+  "Beta": 0.343,
+  "Recommandation": "buy",
+  "Description": "PG&E Corporation, through its subsidiary, Pacific Gas and Electric Company, engages in the sale and delivery of electricity and natural gas to customers in northern and central California, the United States. It generates electricity using nuclear, hydroelectric, fossil fuel-fired, fuel cells, and photovoltaic sources. The company owns and operates interconnected transmission lines; electric transmission substations, distribution lines, switching and distribution substations; and natural gas transmission, storage, and distribution systems consisting of distribution pipelines, backbone and local transmission pipelines, and various storage facilities. It serves residential, commercial, industrial, and agricultural customers, as well as natural gas-fired electric generation facilities. The company was incorporated in 1995 and is based in Oakland, California."
+}

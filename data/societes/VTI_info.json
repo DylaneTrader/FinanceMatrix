@@ -1,0 +1,11 @@
+{
+  "ticker": "VTI",
+  "Nom": "Vanguard Total Stock Market Index Fund ETF Shares",
+  "Nom_Court": "Vanguard Total Stock Market ETF",
+  "Devise": "USD",
+  "Bourse": "PCX",
+  "Capitalisation": 725448916992,
+  "PER_Trailing": 27.364056,
+  "Rendement_Dividende": 1.17,
+  "Description": "The fund employs an indexing investment approach designed to track the performance of the index, which represents approximately 100% of the investable U.S. stock market and includes large-, mid-, small-, and micro-cap stocks regularly traded on the New York Stock Exchange and Nasdaq. It invests by sampling the index, meaning that it holds a broadly diversified collection of securities that, in the aggregate, approximates the full index in terms of key characteristics. The fund is non-diversified."
+}

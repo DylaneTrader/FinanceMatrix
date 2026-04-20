@@ -1,0 +1,40 @@
+name: Mise à jour quotidienne des données
+
+on:
+  schedule:
+    # Chaque jour à 22h UTC (après fermeture des marchés US)
+    - cron: '0 22 * * 1-5'
+  workflow_dispatch:  # Permet le lancement manuel
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configuration Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installation des dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas
+
+      - name: Mise à jour incrémentale des données
+        run: python scraper_yfinance.py update
+
+      - name: Commit et push des données
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          # Ne commit que s'il y a des changements
+          git diff --cached --quiet || git commit -m "📊 Mise à jour automatique des données $(date +'%Y-%m-%d')"
+          git push

@@ -1,0 +1,10 @@
+{
+  "ticker": "SLV",
+  "Nom": "iShares Silver Trust",
+  "Nom_Court": "iShares Silver Trust",
+  "Devise": "USD",
+  "Bourse": "PCX",
+  "Capitalisation": 24681713664,
+  "Rendement_Dividende": 0.0,
+  "Description": "The Trust seeks to reflect such performance before payment of the Trust's expenses and liabilities. It is not actively managed. The Trust does not engage in any activities designed to obtain a profit from, or to ameliorate losses caused by, changes in the price of silver."
+}

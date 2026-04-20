@@ -1,0 +1,11 @@
+{
+  "ticker": "SPY",
+  "Nom": "State Street SPDR S&P 500 ETF Trust",
+  "Nom_Court": "State Street SPDR S&P 500 ETF T",
+  "Devise": "USD",
+  "Bourse": "PCX",
+  "Capitalisation": 649748414464,
+  "PER_Trailing": 28.068521,
+  "Rendement_Dividende": 1.14,
+  "Description": "The trust seeks to achieve its investment objective by holding a portfolio of the common stocks that are included in the index (the “Portfolio”), with the weight of each stock in the Portfolio substantially corresponding to the weight of such stock in the index."
+}

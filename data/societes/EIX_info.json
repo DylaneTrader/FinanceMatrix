@@ -1,0 +1,17 @@
+{
+  "ticker": "EIX",
+  "Nom": "Edison International",
+  "Nom_Court": "Edison International",
+  "Secteur": "Utilities",
+  "Industrie": "Utilities - Regulated Electric",
+  "Pays": "United States",
+  "Site_Web": "https://www.edison.com",
+  "Devise": "USD",
+  "Bourse": "NYQ",
+  "Capitalisation": 27424548864,
+  "PER_Trailing": 6.168831,
+  "Rendement_Dividende": 4.96,
+  "Beta": 0.767,
+  "Recommandation": "hold",
+  "Description": "Edison International, through its subsidiaries, engages in the generation and distribution of electric power. The company supplies and delivers through its electrical infrastructure to an approximately 50,000 square-mile area of southern, central, and coastal California. It serves residential, commercial, industrial, public authorities, agricultural, street lighting, and other sectors. The company's distribution network consists of approximately 13,000 circuit-miles of lines ranging from 55 kV to 500 kV and approximately 80 transmission substations; and approximately 38,000 circuit-miles of overhead lines, approximately 32,000 circuit-miles of underground lines, and approximately 730 distribution substations. Edison International was founded in 1886 and is based in Rosemead, California."
+}

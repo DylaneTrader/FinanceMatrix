@@ -1,0 +1,686 @@
+:root {
+    /* Primary: Royal Navy Blue */
+    --primary-100: #F2F5FF;
+    --primary-200: #B9CCFE;
+    --primary-300: #7EA7F9;
+    --primary-400: #4284EB;
+    --primary-500: #0C64CF;
+    --primary-600: #0456A4;
+    --primary-700: #01467A;
+    --primary-800: #003250;
+    --primary-900: #001A26;
+
+    /* Accent: Snake Fruit */
+    --accent-100: #FFF6F2;
+    --accent-200: #FECBBC;
+    --accent-300: #FA9783;
+    --accent-400: #EF5C4B;
+    --accent-500: #D91F16;
+    --accent-600: #AC0707;
+    --accent-700: #800202;
+    --accent-800: #530000;
+    --accent-900: #260000;
+
+    /* Neutral */
+    --neutral-100: #FAFAFC;
+    --neutral-200: #E7E8ED;
+    --neutral-300: #D5D7DD;
+    --neutral-400: #C3C6CD;
+    --neutral-500: #B1B6BD;
+    --neutral-600: #8D9297;
+    --neutral-700: #686D71;
+    --neutral-800: #45494C;
+    --neutral-900: #222526;
+
+    --bull: #10B981;
+    --bear: #EF4444;
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+html, body, [class*="css"] {
+    font-family: Cambria, Georgia, "Times New Roman", serif !important;
+    color: var(--primary-900);
+}
+
+.stApp {
+    background: linear-gradient(180deg, var(--neutral-100) 0%, var(--primary-100) 100%);
+}
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+    max-width: 1300px;
+}
+
+/* ==========================================================
+   Titles
+   ========================================================== */
+h1, h2, h3, h4 {
+    color: var(--primary-800) !important;
+    font-family: Cambria, Georgia, serif;
+}
+
+/* ==========================================================
+   Sidebar
+   ========================================================== */
+section[data-testid="stSidebar"] {
+    background-color: var(--primary-900);
+    border-right: 2px solid var(--primary-500);
+}
+
+section[data-testid="stSidebar"] * {
+    color: var(--primary-100) !important;
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: var(--primary-200) !important;
+    border-bottom: 1px solid var(--primary-700);
+    padding-bottom: 0.3rem;
+}
+
+section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
+    background-color: var(--primary-800) !important;
+    border: 1px solid var(--primary-500) !important;
+    color: var(--primary-100) !important;
+}
+
+/* ==========================================================
+   Metrics
+   ========================================================== */
+[data-testid="stMetric"] {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--primary-500);
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--neutral-600) !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: var(--primary-800) !important;
+}
+
+/* ==========================================================
+   Buttons
+   ========================================================== */
+.stButton > button {
+    background-color: var(--primary-500);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--primary-700);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================
+   Tabs
+   ========================================================== */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 6px;
+    background-color: var(--neutral-200);
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: transparent;
+    color: var(--primary-800);
+    border-radius: 8px;
+    padding: 10px 18px;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: var(--primary-500) !important;
+    color: white !important;
+}
+
+/* ==========================================================
+   Market band (Accueil)
+   ========================================================== */
+.market-band {
+    background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-600) 100%);
+    color: var(--primary-100);
+    padding: 18px 24px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 12px rgba(1, 70, 122, 0.2);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.market-band .mb-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.market-band .mb-label {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.market-band .mb-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Performance cards (Top/Flop)
+   ========================================================== */
+.perf-card {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 8px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    border-left: 5px solid var(--neutral-300);
+    display: grid;
+    grid-template-columns: 34px 1fr auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.perf-card.top {
+    border-left-color: var(--bull);
+}
+
+.perf-card.flop {
+    border-left-color: var(--bear);
+}
+
+.perf-rank {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.perf-name {
+    color: var(--primary-800);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.15;
+}
+
+.perf-ticker {
+    color: var(--neutral-600);
+    font-size: 0.75rem;
+}
+
+.perf-return {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.perf-return.pos {
+    color: var(--bull);
+}
+
+.perf-return.neg {
+    color: var(--bear);
+}
+
+/* ==========================================================
+   Company card
+   ========================================================== */
+.company-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-left: 4px solid var(--primary-500);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 1px 3px rgba(1, 70, 122, 0.08);
+}
+
+.company-card h2 {
+    margin: 0 0 0.4rem 0;
+    color: var(--primary-700);
+    font-size: 1.4rem;
+}
+
+.company-meta {
+    color: var(--neutral-700);
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+}
+
+.company-summary {
+    color: var(--neutral-800);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.company-card a {
+    color: var(--primary-500);
+    text-decoration: none;
+}
+
+.company-card a:hover {
+    text-decoration: underline;
+    color: var(--primary-700);
+}
+
+/* ==========================================================
+   KPI summary grid
+   ========================================================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.summary-grid > div {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-top: 3px solid var(--primary-500);
+    border-radius: 4px;
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.summary-grid span {
+    color: var(--neutral-700);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-grid b {
+    color: var(--primary-800);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Fundamentals
+   ========================================================== */
+.fundamentals-section > h3 {
+    color: var(--primary-700);
+    border-bottom: 2px solid var(--primary-300);
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+.fundamentals-block {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.fundamentals-block h4 {
+    margin: 0 0 0.7rem 0;
+    color: var(--primary-600);
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.fundamentals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.3rem 1.2rem;
+}
+
+.fund-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--neutral-200);
+    font-size: 0.9rem;
+}
+
+.fund-label {
+    color: var(--neutral-700);
+}
+
+.fund-value {
+    color: var(--primary-800);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   Responsive
+   ========================================================== */
+@media (max-width: 640px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .market-band {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .perf-card {
+        grid-template-columns: 28px 1fr auto;
+    }
+}
+:root {
+    /* Primary: Royal Navy Blue */
+    --primary-100: #F2F5FF;
+    --primary-200: #B9CCFE;
+    --primary-300: #7EA7F9;
+    --primary-400: #4284EB;
+    --primary-500: #0C64CF;
+    --primary-600: #0456A4;
+    --primary-700: #01467A;
+    --primary-800: #003250;
+    --primary-900: #001A26;
+
+    /* Accent: Snake Fruit */
+    --accent-100: #FFF6F2;
+    --accent-200: #FECBBC;
+    --accent-300: #FA9783;
+    --accent-400: #EF5C4B;
+    --accent-500: #D91F16;
+    --accent-600: #AC0707;
+    --accent-700: #800202;
+    --accent-800: #530000;
+    --accent-900: #260000;
+
+    /* Neutral */
+    --neutral-100: #FAFAFC;
+    --neutral-200: #E7E8ED;
+    --neutral-300: #D5D7DD;
+    --neutral-400: #C3C6CD;
+    --neutral-500: #B1B6BD;
+    --neutral-600: #8D9297;
+    --neutral-700: #686D71;
+    --neutral-800: #45494C;
+    --neutral-900: #222526;
+
+    --bull: #1B8A5A;
+    --bear: #C0392B;
+}
+
+/* ==========================================================
+   Base
+   ========================================================== */
+html, body, [class*="css"] {
+    font-family: Cambria, Georgia, "Times New Roman", serif !important;
+    color: var(--primary-900);
+}
+
+.stApp {
+    background: linear-gradient(180deg, var(--neutral-100) 0%, var(--primary-100) 100%);
+}
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+    max-width: 1300px;
+}
+
+/* ==========================================================
+   Titles
+   ========================================================== */
+.matrix-title {
+    text-align: center;
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--primary-700);
+    padding: 0.6rem 0 0.4rem 0;
+    border-bottom: 2px solid var(--primary-500);
+    margin-bottom: 1.2rem;
+}
+
+h1, h2, h3, h4 {
+    color: var(--primary-800);
+    font-family: Cambria, Georgia, serif;
+}
+
+/* ==========================================================
+   Sidebar
+   ========================================================== */
+section[data-testid="stSidebar"] {
+    background-color: var(--primary-900);
+    border-right: 2px solid var(--primary-500);
+}
+
+section[data-testid="stSidebar"] * {
+    color: var(--primary-100) !important;
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: var(--primary-200) !important;
+    border-bottom: 1px solid var(--primary-700);
+    padding-bottom: 0.3rem;
+}
+
+section[data-testid="stSidebar"] div[data-baseweb="select"] > div {
+    background-color: var(--primary-800) !important;
+    border: 1px solid var(--primary-500) !important;
+    color: var(--primary-100) !important;
+}
+
+/* ==========================================================
+   Status banners
+   ========================================================== */
+.matrix-status {
+    background-color: var(--primary-100);
+    border-left: 4px solid var(--primary-500);
+    color: var(--primary-800);
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.matrix-error {
+    background-color: var(--accent-100);
+    border-left: 4px solid var(--accent-500);
+    color: var(--accent-700);
+    padding: 0.6rem 0.9rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================
+   Company card
+   ========================================================== */
+.company-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-left: 4px solid var(--primary-500);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 1px 3px rgba(1, 70, 122, 0.08);
+}
+
+.company-card h2 {
+    margin: 0 0 0.4rem 0;
+    color: var(--primary-700);
+    font-size: 1.4rem;
+}
+
+.company-meta {
+    color: var(--neutral-700);
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.02em;
+}
+
+.company-summary {
+    color: var(--neutral-800);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.company-card a {
+    color: var(--primary-500);
+    text-decoration: none;
+    font-size: 0.88rem;
+}
+
+.company-card a:hover {
+    text-decoration: underline;
+    color: var(--primary-700);
+}
+
+/* ==========================================================
+   KPI summary
+   ========================================================== */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.summary-grid > div {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-top: 3px solid var(--primary-500);
+    border-radius: 4px;
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.summary-grid span {
+    color: var(--neutral-700);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-grid b {
+    color: var(--primary-800);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   Fundamentals
+   ========================================================== */
+.fundamentals-section {
+    margin-top: 1.5rem;
+}
+
+.fundamentals-section > h3 {
+    color: var(--primary-700);
+    border-bottom: 2px solid var(--primary-300);
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+.fundamentals-block {
+    background-color: #FFFFFF;
+    border: 1px solid var(--neutral-200);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.fundamentals-block h4 {
+    margin: 0 0 0.7rem 0;
+    color: var(--primary-600);
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.fundamentals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.3rem 1.2rem;
+}
+
+.fund-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--neutral-200);
+    font-size: 0.9rem;
+}
+
+.fund-label {
+    color: var(--neutral-700);
+}
+
+.fund-value {
+    color: var(--primary-800);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================
+   Responsive
+   ========================================================== */
+@media (max-width: 640px) {
+    .matrix-title { font-size: 1.5rem; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+    /* Primary: Royal Navy Blue */
+    --primary-100: #F2F5FF;
+    --primary-200: #B9CCFE;
+    --primary-300: #7EA7F9;
+    --primary-400: #4284EB;
+    --primary-500: #0C64CF;
+    --primary-600: #0456A4;
+    --primary-700: #01467A;
+    --primary-800: #003250;
+    --primary-900: #001A26;
+
+    /* Accent: Snake Fruit */
+    --accent-100: #FFF6F2;
+    --accent-200: #FECBBC;
+    --accent-300: #FA9783;
+    --accent-400: #EF5C4B;
+    --accent-500: #D91F16;
+    --accent-600: #AC0707;
+    --accent-700: #800202;
+    --accent-800: #530000;
+    --accent-900: #260000;
+
+    /* Neutral */
+    --neutral-100: #FAFAFC;
+    --neutral-200: #E7E8ED;
+    --neutral-300: #D5D7DD;
+    --neutral-400: #C3C6CD;
+    --neutral-500: #B1B6BD;
+    --neutral-600: #8D9297;
+    --neutral-700: #686D71;
+    --neutral-800: #45494C;
+    --neutral-900: #222526;
+    

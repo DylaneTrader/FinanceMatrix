@@ -1,0 +1,11 @@
+{
+  "ticker": "DIA",
+  "Nom": "State Street SPDR Dow Jones Industrial Average ETF Trust",
+  "Nom_Court": "State Street SPDR Dow Jones Ind",
+  "Devise": "USD",
+  "Bourse": "PCX",
+  "Capitalisation": 40120176640,
+  "PER_Trailing": 24.204958,
+  "Rendement_Dividende": 1.52,
+  "Description": "The Trust’s Portfolio consists of substantially all of the component common stocks that comprise the DJIA, which are weighted in accordance with the terms of the Trust Agreement."
+}
