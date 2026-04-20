@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import numpy as np
 import json
 from functools import lru_cache
 from pathlib import Path
@@ -339,7 +340,7 @@ def calculate_indicators(df):
     # ── CCI (Commodity Channel Index) ──
     tp = (high + low + close) / 3
     sma_tp = tp.rolling(20).mean()
-    mad = tp.rolling(20).apply(lambda x: (x - x.mean()).abs().mean(), raw=True)
+    mad = tp.rolling(20).apply(lambda x: np.abs(x - x.mean()).mean(), raw=True)
     df["CCI"] = (tp - sma_tp) / (0.015 * mad.replace(0, 1e-9))
 
     # ── Williams %R ──
