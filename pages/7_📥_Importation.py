@@ -300,9 +300,30 @@ st.markdown("""
 En production, le workflow `.github/workflows/update_data.yml` s'exécute
 automatiquement chaque jour pour mettre à jour les données.
 
+**📅 Planification :** Tous les jours de bourse à **22h UTC** (après fermeture US)
+
 Le workflow :
 1. Clone le dépôt
 2. Installe les dépendances (`yfinance`, `pandas`)
 3. Lance `python scraper_yfinance.py update`
 4. Commit et push les fichiers CSV/JSON mis à jour
 """)
+
+# Lien vers GitHub Actions
+REPO_OWNER = "DylaneTrader"
+REPO_NAME = "FinanceMatrix"
+workflow_url = f"https://github.com/{REPO_OWNER}/{REPO_NAME}/actions/workflows/update_data.yml"
+
+col_link1, col_link2 = st.columns(2)
+with col_link1:
+    st.link_button(
+        "▶️ Lancer le workflow manuellement",
+        workflow_url,
+        use_container_width=True,
+    )
+with col_link2:
+    st.link_button(
+        "📊 Voir l'historique des exécutions",
+        f"https://github.com/{REPO_OWNER}/{REPO_NAME}/actions",
+        use_container_width=True,
+    )
